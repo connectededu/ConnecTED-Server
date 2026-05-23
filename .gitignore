@@ -1,0 +1,20 @@
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+*.env
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+
+# Script files
+scripts/
+
+# Secrets and Configs
+src/config/serverAccountKey.json
