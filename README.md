@@ -1,4 +1,4 @@
-"# ConnecTED Server
+ConnecTED Server
 
 **A comprehensive backend API for the ConnecTED School Management Platform**
 
@@ -47,6 +47,7 @@ The server uses **MongoDB** for data persistence and **Firebase** for user authe
 ## ✨ Features
 
 ### Core Features
+
 - ✅ **Role-Based Access Control (RBAC)** - Granular permission system for Admin, Teacher, and Parent roles
 - ✅ **Firebase Authentication** - Secure signup/login with JWT token management
 - ✅ **Account Approval System** - Teachers and parents require admin approval before access
@@ -63,6 +64,7 @@ The server uses **MongoDB** for data persistence and **Firebase** for user authe
 - ✅ **Health Checks** - API health monitoring with database status
 
 ### Security Features
+
 - 🔒 **Helmet.js** - HTTP security headers
 - 🔒 **CORS Protection** - Configurable cross-origin resource sharing
 - 🔒 **Rate Limiting** - Protection against brute-force attacks
@@ -75,19 +77,19 @@ The server uses **MongoDB** for data persistence and **Firebase** for user authe
 
 ## 🛠️ Tech Stack
 
-| Category | Technology |
-|----------|-----------|
-| **Runtime** | Node.js with TypeScript |
-| **Framework** | Express.js |
-| **Database** | MongoDB (Atlas) |
-| **Authentication** | Firebase Admin SDK |
-| **Real-Time Communication** | Socket.IO |
-| **Email Service** | Nodemailer (Gmail/SMTP) |
-| **File Storage** | Cloudinary |
-| **Payment** | Paystack API |
-| **Logging** | Winston |
-| **Security** | Helmet.js, CORS, Rate Limiting |
-| **HTTP Logging** | Morgan |
+| Category                    | Technology                     |
+| --------------------------- | ------------------------------ |
+| **Runtime**                 | Node.js with TypeScript        |
+| **Framework**               | Express.js                     |
+| **Database**                | MongoDB (Atlas)                |
+| **Authentication**          | Firebase Admin SDK             |
+| **Real-Time Communication** | Socket.IO                      |
+| **Email Service**           | Nodemailer (Gmail/SMTP)        |
+| **File Storage**            | Cloudinary                     |
+| **Payment**                 | Paystack API                   |
+| **Logging**                 | Winston                        |
+| **Security**                | Helmet.js, CORS, Rate Limiting |
+| **HTTP Logging**            | Morgan                         |
 
 ---
 
@@ -184,30 +186,35 @@ server/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/KhobbyLynx/ConnecTED_Server.git
    cd server
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Configure environment variables**
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
    ```
 
 4. **Start the server**
-   
+
    **Development mode:**
+
    ```bash
    npm run dev
    ```
-   
+
    **Production mode:**
+
    ```bash
    npm run build
    npm start
@@ -267,122 +274,123 @@ EMAIL_PASSWORD=your-app-password
 ## 📡 API Endpoints
 
 ### Base URL
+
 ```
 http://localhost:5000/api
 ```
 
 ### Authentication Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `POST` | `/auth/register` | Register new user | Bearer Token |
-| `GET` | `/auth/me` | Get current user | Bearer Token |
-| `PATCH` | `/auth/me` | Update profile | Bearer Token |
-| `POST` | `/auth/approve/:userId` | Admin approves user | Bearer Token + Admin |
-| `DELETE` | `/auth/reject/:userId` | Admin rejects/deletes user | Bearer Token + Admin |
-| `POST` | `/auth/fcm-token` | Update FCM token | Bearer Token |
-| `POST` | `/auth/logout` | Logout user | Bearer Token |
-| `GET` | `/health` | Health check | No |
+| Method   | Endpoint                | Description                | Auth Required        |
+| -------- | ----------------------- | -------------------------- | -------------------- |
+| `POST`   | `/auth/register`        | Register new user          | Bearer Token         |
+| `GET`    | `/auth/me`              | Get current user           | Bearer Token         |
+| `PATCH`  | `/auth/me`              | Update profile             | Bearer Token         |
+| `POST`   | `/auth/approve/:userId` | Admin approves user        | Bearer Token + Admin |
+| `DELETE` | `/auth/reject/:userId`  | Admin rejects/deletes user | Bearer Token + Admin |
+| `POST`   | `/auth/fcm-token`       | Update FCM token           | Bearer Token         |
+| `POST`   | `/auth/logout`          | Logout user                | Bearer Token         |
+| `GET`    | `/health`               | Health check               | No                   |
 
 ### User Management Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/users` | Get all users (paginated) | Bearer + Admin |
-| `GET` | `/users/:id` | Get specific user | Bearer + Admin |
-| `PUT` | `/users/:id` | Update user | Bearer + Admin |
-| `DELETE` | `/users/:id` | Delete user | Bearer + Admin |
-| `POST` | `/users/:id/email` | Send email to user | Bearer + Admin |
+| Method   | Endpoint           | Description               | Auth Required  |
+| -------- | ------------------ | ------------------------- | -------------- |
+| `GET`    | `/users`           | Get all users (paginated) | Bearer + Admin |
+| `GET`    | `/users/:id`       | Get specific user         | Bearer + Admin |
+| `PUT`    | `/users/:id`       | Update user               | Bearer + Admin |
+| `DELETE` | `/users/:id`       | Delete user               | Bearer + Admin |
+| `POST`   | `/users/:id/email` | Send email to user        | Bearer + Admin |
 
 ### Student Management Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/students` | Get all students | Bearer |
-| `GET` | `/students/:id` | Get specific student | Bearer |
-| `POST` | `/students` | Create student | Bearer + Admin |
-| `PUT` | `/students/:id` | Update student | Bearer + Admin |
-| `DELETE` | `/students/:id` | Delete student | Bearer + Admin |
+| Method   | Endpoint        | Description          | Auth Required  |
+| -------- | --------------- | -------------------- | -------------- |
+| `GET`    | `/students`     | Get all students     | Bearer         |
+| `GET`    | `/students/:id` | Get specific student | Bearer         |
+| `POST`   | `/students`     | Create student       | Bearer + Admin |
+| `PUT`    | `/students/:id` | Update student       | Bearer + Admin |
+| `DELETE` | `/students/:id` | Delete student       | Bearer + Admin |
 
 ### Class Management Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/classes` | Get all classes | Bearer |
-| `GET` | `/classes/:id` | Get specific class | Bearer |
-| `POST` | `/classes` | Create class | Bearer + Admin |
-| `PUT` | `/classes/:id` | Update class | Bearer + Admin |
-| `DELETE` | `/classes/:id` | Delete class | Bearer + Admin |
+| Method   | Endpoint       | Description        | Auth Required  |
+| -------- | -------------- | ------------------ | -------------- |
+| `GET`    | `/classes`     | Get all classes    | Bearer         |
+| `GET`    | `/classes/:id` | Get specific class | Bearer         |
+| `POST`   | `/classes`     | Create class       | Bearer + Admin |
+| `PUT`    | `/classes/:id` | Update class       | Bearer + Admin |
+| `DELETE` | `/classes/:id` | Delete class       | Bearer + Admin |
 
 ### Grade Management Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/grades` | Get grades | Bearer |
-| `POST` | `/grades` | Create grade | Bearer + Teacher |
-| `PUT` | `/grades/:id` | Update grade | Bearer + Teacher |
-| `DELETE` | `/grades/:id` | Delete grade | Bearer + Admin |
+| Method   | Endpoint      | Description  | Auth Required    |
+| -------- | ------------- | ------------ | ---------------- |
+| `GET`    | `/grades`     | Get grades   | Bearer           |
+| `POST`   | `/grades`     | Create grade | Bearer + Teacher |
+| `PUT`    | `/grades/:id` | Update grade | Bearer + Teacher |
+| `DELETE` | `/grades/:id` | Delete grade | Bearer + Admin   |
 
 ### Attendance Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/attendance` | Get attendance records | Bearer |
-| `POST` | `/attendance` | Record attendance | Bearer + Teacher |
-| `PUT` | `/attendance/:id` | Update attendance | Bearer + Teacher |
+| Method | Endpoint          | Description            | Auth Required    |
+| ------ | ----------------- | ---------------------- | ---------------- |
+| `GET`  | `/attendance`     | Get attendance records | Bearer           |
+| `POST` | `/attendance`     | Record attendance      | Bearer + Teacher |
+| `PUT`  | `/attendance/:id` | Update attendance      | Bearer + Teacher |
 
 ### Homework Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/homework` | Get homework | Bearer |
-| `POST` | `/homework` | Create homework | Bearer + Teacher |
-| `PUT` | `/homework/:id` | Update homework | Bearer + Teacher |
+| Method | Endpoint        | Description     | Auth Required    |
+| ------ | --------------- | --------------- | ---------------- |
+| `GET`  | `/homework`     | Get homework    | Bearer           |
+| `POST` | `/homework`     | Create homework | Bearer + Teacher |
+| `PUT`  | `/homework/:id` | Update homework | Bearer + Teacher |
 
 ### Messaging Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/messages` | Get messages | Bearer |
-| `POST` | `/messages` | Send message | Bearer |
-| `DELETE` | `/messages/:id` | Delete message | Bearer |
+| Method   | Endpoint        | Description    | Auth Required |
+| -------- | --------------- | -------------- | ------------- |
+| `GET`    | `/messages`     | Get messages   | Bearer        |
+| `POST`   | `/messages`     | Send message   | Bearer        |
+| `DELETE` | `/messages/:id` | Delete message | Bearer        |
 
 ### Notifications Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/notifications` | Get notifications | Bearer |
-| `POST` | `/notifications/mark-read` | Mark as read | Bearer |
+| Method | Endpoint                   | Description       | Auth Required |
+| ------ | -------------------------- | ----------------- | ------------- |
+| `GET`  | `/notifications`           | Get notifications | Bearer        |
+| `POST` | `/notifications/mark-read` | Mark as read      | Bearer        |
 
 ### Announcements Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/announcements` | Get announcements | Bearer |
-| `POST` | `/announcements` | Create announcement | Bearer + Admin/Teacher |
-| `PUT` | `/announcements/:id` | Update announcement | Bearer + Creator |
+| Method | Endpoint             | Description         | Auth Required          |
+| ------ | -------------------- | ------------------- | ---------------------- |
+| `GET`  | `/announcements`     | Get announcements   | Bearer                 |
+| `POST` | `/announcements`     | Create announcement | Bearer + Admin/Teacher |
+| `PUT`  | `/announcements/:id` | Update announcement | Bearer + Creator       |
 
 ### Events Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/events` | Get events | Bearer |
-| `POST` | `/events` | Create event | Bearer + Admin |
-| `POST` | `/events/:id/rsvp` | RSVP to event | Bearer |
+| Method | Endpoint           | Description   | Auth Required  |
+| ------ | ------------------ | ------------- | -------------- |
+| `GET`  | `/events`          | Get events    | Bearer         |
+| `POST` | `/events`          | Create event  | Bearer + Admin |
+| `POST` | `/events/:id/rsvp` | RSVP to event | Bearer         |
 
 ### Analytics Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/analytics/stats` | Get dashboard stats | Bearer + Admin |
-| `GET` | `/analytics/trends` | Get trend data | Bearer + Admin |
+| Method | Endpoint            | Description         | Auth Required  |
+| ------ | ------------------- | ------------------- | -------------- |
+| `GET`  | `/analytics/stats`  | Get dashboard stats | Bearer + Admin |
+| `GET`  | `/analytics/trends` | Get trend data      | Bearer + Admin |
 
 ### Audit Log Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---|
-| `GET` | `/audit` | Get audit logs | Bearer + Admin |
-| `GET` | `/audit/:id` | Get specific audit log | Bearer + Admin |
+| Method | Endpoint     | Description            | Auth Required  |
+| ------ | ------------ | ---------------------- | -------------- |
+| `GET`  | `/audit`     | Get audit logs         | Bearer + Admin |
+| `GET`  | `/audit/:id` | Get specific audit log | Bearer + Admin |
 
 ---
 
@@ -401,6 +409,7 @@ http://localhost:5000/api
 Three main roles with hierarchical permissions:
 
 #### Admin
+
 - Full system access
 - User management (create, read, update, delete, approve)
 - Student and class management
@@ -409,6 +418,7 @@ Three main roles with hierarchical permissions:
 - Create announcements and events
 
 #### Teacher
+
 - Read-only access to students and classes
 - Create and manage grades and attendance
 - Create homework assignments
@@ -417,6 +427,7 @@ Three main roles with hierarchical permissions:
 - Receive notifications
 
 #### Parent
+
 - View own children's information
 - Read-only access to grades and attendance
 - Send messages to teachers/admins
@@ -430,41 +441,65 @@ Default permissions by role (defined in `src/models/User.ts`):
 
 ```typescript
 admin: [
-  'users:read', 'users:write', 'users:delete', 'users:approve',
-  'students:read', 'students:write', 'students:delete',
-  'classes:read', 'classes:write', 'classes:delete',
-  'grades:read', 'grades:write',
-  'attendance:read', 'attendance:write',
-  'homework:read', 'homework:write',
-  'messages:read', 'messages:write',
-  'announcements:read', 'announcements:write',
-  'events:read', 'events:write', 'events:rsvp',
-  'notifications:read', 'notifications:write',
-  'audit:read',
+	'users:read',
+	'users:write',
+	'users:delete',
+	'users:approve',
+	'students:read',
+	'students:write',
+	'students:delete',
+	'classes:read',
+	'classes:write',
+	'classes:delete',
+	'grades:read',
+	'grades:write',
+	'attendance:read',
+	'attendance:write',
+	'homework:read',
+	'homework:write',
+	'messages:read',
+	'messages:write',
+	'announcements:read',
+	'announcements:write',
+	'events:read',
+	'events:write',
+	'events:rsvp',
+	'notifications:read',
+	'notifications:write',
+	'audit:read'
 ]
 
 teacher: [
-  'students:read',
-  'classes:read',
-  'grades:read', 'grades:write',
-  'attendance:read', 'attendance:write',
-  'homework:read', 'homework:write',
-  'messages:read', 'messages:write',
-  'announcements:read', 'announcements:write',
-  'events:read', 'events:write', 'events:rsvp',
-  'notifications:read',
+	'students:read',
+	'classes:read',
+	'grades:read',
+	'grades:write',
+	'attendance:read',
+	'attendance:write',
+	'homework:read',
+	'homework:write',
+	'messages:read',
+	'messages:write',
+	'announcements:read',
+	'announcements:write',
+	'events:read',
+	'events:write',
+	'events:rsvp',
+	'notifications:read'
 ]
 
 parent: [
-  'students:read',
-  'classes:read',
-  'grades:read',
-  'attendance:read',
-  'homework:read',
-  'messages:read', 'messages:write',
-  'announcements:read',
-  'events:read', 'events:rsvp',
-  'notifications:read',
+	'students:read',
+	'classes:read',
+	'grades:read',
+	'attendance:read',
+	'homework:read',
+	'messages:read',
+	'messages:write',
+	'announcements:read',
+	'events:read',
+	'events:rsvp',
+	'notifications:read'
 ]
 ```
 
@@ -472,13 +507,13 @@ parent: [
 
 ```typescript
 // Verify token and attach user to request
-router.use(verifyToken);
+router.use(verifyToken)
 
 // Require specific roles
-router.post('/admin-only', requireRole('admin'), controller);
+router.post('/admin-only', requireRole('admin'), controller)
 
 // Require account approval
-router.get('/profile', requireApproval, controller);
+router.get('/profile', requireApproval, controller)
 ```
 
 ---
@@ -490,6 +525,7 @@ router.get('/profile', requireApproval, controller);
 Stores all user accounts with role-specific data.
 
 **Fields:**
+
 - `firebaseUid` (string): Unique Firebase ID
 - `email` (string): User email
 - `name` (string): Full name
@@ -510,6 +546,7 @@ Stores all user accounts with role-specific data.
 Academic records for students.
 
 **Fields:**
+
 - `id` (string): Unique identifier
 - `name` (string): Student name
 - `admissionNumber` (string): School admission code
@@ -524,6 +561,7 @@ Academic records for students.
 Classroom definitions.
 
 **Fields:**
+
 - `id` (string): Unique identifier
 - `name` (string): Class name (e.g., "Primary 1A")
 - `grade` (string): Grade level
@@ -537,6 +575,7 @@ Classroom definitions.
 Student grades for subjects.
 
 **Fields:**
+
 - `studentId` (ref): Reference to Student
 - `classId` (ref): Reference to Class
 - `subject` (string): Subject name
@@ -551,6 +590,7 @@ Student grades for subjects.
 Attendance records.
 
 **Fields:**
+
 - `studentId` (ref): Reference to Student
 - `classId` (ref): Reference to Class
 - `date` (date): Attendance date
@@ -563,6 +603,7 @@ Attendance records.
 Homework assignments.
 
 **Fields:**
+
 - `title` (string): Assignment title
 - `description` (string): Detailed description
 - `subject` (string): Subject
@@ -577,6 +618,7 @@ Homework assignments.
 P2P messaging between users.
 
 **Fields:**
+
 - `senderId` (ref): Sender User ID
 - `recipientId` (ref): Recipient User ID
 - `content` (string): Message text
@@ -589,6 +631,7 @@ P2P messaging between users.
 In-app notifications.
 
 **Fields:**
+
 - `userId` (ref): Target user
 - `type` (string): Notification type
 - `title` (string): Notification title
@@ -603,6 +646,7 @@ In-app notifications.
 Broadcast announcements.
 
 **Fields:**
+
 - `title` (string): Announcement title
 - `content` (string): Announcement body
 - `targetAudience` (string): 'all' | 'teachers' | 'parents' | 'specific_class'
@@ -616,6 +660,7 @@ Broadcast announcements.
 Audit trail for sensitive operations.
 
 **Fields:**
+
 - `action` (string): Action performed
 - `userId` (ref): User who performed action
 - `targetModel` (string): Model affected
@@ -636,15 +681,15 @@ Logs all sensitive operations to MongoDB.
 
 ```typescript
 // src/services/audit.service.ts
-import { createAuditLog } from './audit.service';
+import { createAuditLog } from './audit.service'
 
 await createAuditLog({
-  action: 'USER_CREATED',
-  userId: req.user._id,
-  targetModel: 'User',
-  targetId: newUser._id,
-  changes: { created: newUser },
-});
+	action: 'USER_CREATED',
+	userId: req.user._id,
+	targetModel: 'User',
+	targetId: newUser._id,
+	changes: { created: newUser }
+})
 ```
 
 ### Notification Service
@@ -653,14 +698,14 @@ Creates in-app notifications and can trigger FCM push notifications.
 
 ```typescript
 // src/services/notification.service.ts
-import { createNotification } from './notification.service';
+import { createNotification } from './notification.service'
 
 await createNotification({
-  userId: targetUserId,
-  type: 'USER_APPROVED',
-  title: 'Account Approved',
-  body: 'Your account has been approved',
-});
+	userId: targetUserId,
+	type: 'USER_APPROVED',
+	title: 'Account Approved',
+	body: 'Your account has been approved'
+})
 ```
 
 ### Email Service
@@ -669,13 +714,13 @@ Sends emails via Gmail SMTP.
 
 ```typescript
 // src/services/email.service.ts
-import { sendEmail } from './email.service';
+import { sendEmail } from './email.service'
 
 await sendEmail({
-  to: 'recipient@example.com',
-  subject: 'Account Approved',
-  html: '<h1>Welcome!</h1>',
-});
+	to: 'recipient@example.com',
+	subject: 'Account Approved',
+	html: '<h1>Welcome!</h1>'
+})
 ```
 
 ### Logger
@@ -684,12 +729,12 @@ Winston-based logging service.
 
 ```typescript
 // src/services/logger.ts
-import Logger from './logger';
+import Logger from './logger'
 
-Logger.info('Operation successful');
-Logger.error('Something went wrong');
-Logger.warn('Warning message');
-Logger.debug('Debug info');
+Logger.info('Operation successful')
+Logger.error('Something went wrong')
+Logger.warn('Warning message')
+Logger.debug('Debug info')
 ```
 
 ---
@@ -701,6 +746,7 @@ Logger.debug('Debug info');
 The server connects to MongoDB Atlas via mongoose with connection pooling.
 
 **Connection Configuration:**
+
 - **Max Pool Size**: 50 connections
 - **Buffer Commands**: Disabled for better error handling
 - **Authentication**: Username/password with IP whitelisting
@@ -712,17 +758,18 @@ All MongoDB collections are defined using Mongoose schemas in `src/models/`:
 ```typescript
 // Example schema structure
 const userSchema = new Schema({
-  firebaseUid: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  role: { type: String, enum: ['admin', 'teacher', 'parent'], required: true },
-  isApproved: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now },
-});
+	firebaseUid: { type: String, required: true, unique: true },
+	email: { type: String, required: true, unique: true },
+	role: { type: String, enum: ['admin', 'teacher', 'parent'], required: true },
+	isApproved: { type: Boolean, default: false },
+	createdAt: { type: Date, default: Date.now }
+})
 ```
 
 ### Database Indexes
 
 Critical indexes are created automatically by Mongoose:
+
 - User: `firebaseUid`, `email`
 - Student: `admissionNumber`, `classId`
 - Attendance: `studentId`, `date`
@@ -737,6 +784,7 @@ Critical indexes are created automatically by Mongoose:
 Located in `src/config/socket.ts`, Socket.IO enables real-time features:
 
 **Supported Events:**
+
 - `message` - Real-time messaging
 - `user_online` - User online status
 - `notification` - Push notifications
@@ -744,15 +792,16 @@ Located in `src/config/socket.ts`, Socket.IO enables real-time features:
 - `presence_update` - Presence tracking
 
 **Usage Example:**
+
 ```typescript
 // Frontend
-socket.emit('message', { recipientId: '123', content: 'Hello!' });
-socket.on('message', (msg) => console.log(msg));
+socket.emit('message', { recipientId: '123', content: 'Hello!' })
+socket.on('message', (msg) => console.log(msg))
 
 // Backend (in socket configuration)
 socket.on('message', async (data) => {
-  // Handle message
-});
+	// Handle message
+})
 ```
 
 ---
@@ -766,6 +815,7 @@ app.use(helmet())
 ```
 
 Protects against:
+
 - XSS attacks
 - Clickjacking
 - MIME type sniffing
@@ -775,16 +825,16 @@ Protects against:
 
 ```typescript
 cors({
-  origin: allowedOrigins,  // Only specified origins
-  credentials: true        // Allow cookies
+	origin: allowedOrigins, // Only specified origins
+	credentials: true // Allow cookies
 })
 ```
 
 ### Cache Control
 
 ```typescript
-res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-res.setHeader('Pragma', 'no-cache');
+res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate')
+res.setHeader('Pragma', 'no-cache')
 ```
 
 Prevents sensitive data from being cached by browsers.
@@ -795,10 +845,12 @@ Protects against brute-force attacks:
 
 ```typescript
 // src/middleware/rateLimiter.ts
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 100                     // 100 requests per window
-}));
+app.use(
+	rateLimit({
+		windowMs: 15 * 60 * 1000, // 15 minutes
+		max: 100 // 100 requests per window
+	})
+)
 ```
 
 ### Input Validation
@@ -807,7 +859,7 @@ Request payloads are validated before processing:
 
 ```typescript
 if (!email || !password) {
-  return res.status(400).json({ error: 'Missing required fields' });
+	return res.status(400).json({ error: 'Missing required fields' })
 }
 ```
 
@@ -838,6 +890,7 @@ npm run setup-admin
 ```
 
 **What it does:**
+
 - Creates an admin user in MongoDB
 - Sets `isApproved: true`
 - Assigns all admin permissions
@@ -859,6 +912,7 @@ npm run seed-data
 ```
 
 Creates sample:
+
 - Users (admins, teachers, parents)
 - Students
 - Classes
@@ -910,6 +964,7 @@ NODE_ENV=development npm run dev
 ```
 
 Logs will include:
+
 - HTTP requests (Morgan)
 - Database queries
 - Authentication flows
@@ -922,6 +977,7 @@ Logs will include:
 ### Environment Setup
 
 1. **Production Environment Variables**
+
    ```env
    NODE_ENV=production
    PORT=5000
@@ -931,6 +987,7 @@ Logs will include:
    ```
 
 2. **Build the Application**
+
    ```bash
    npm install
    npm run build
@@ -979,6 +1036,7 @@ pm2 startup
 ### Database Backup
 
 For MongoDB Atlas:
+
 1. Go to **Atlas Dashboard**
 2. Select **Backup** → **Create On-Demand Backup**
 3. Automated backups are daily by default
@@ -994,6 +1052,7 @@ For MongoDB Atlas:
 **Error**: `querySrv ECONNREFUSED _mongodb._tcp.cluster.mongodb.net`
 
 **Solution**:
+
 ```typescript
 // Already fixed in index.ts
 import dns from 'node:dns/promises'
@@ -1005,6 +1064,7 @@ dns.setServers(['1.1.1.1', '1.0.0.1'])
 **Error**: `Invalid token or session`
 
 **Causes & Solutions**:
+
 - Token expired: Request new token from frontend
 - Wrong credentials: Check Firebase config in `.env`
 - CORS issue: Verify `CLIENT_URL` is in allowed origins
@@ -1014,6 +1074,7 @@ dns.setServers(['1.1.1.1', '1.0.0.1'])
 **Error**: `Access to XMLHttpRequest has been blocked by CORS policy`
 
 **Solution**:
+
 ```env
 CLIENT_URL=http://localhost:4173  # Match frontend URL
 ```
@@ -1023,10 +1084,12 @@ CLIENT_URL=http://localhost:4173  # Match frontend URL
 **Issue**: User logs in but `/auth/me` returns null
 
 **Causes**:
+
 - Firebase UID doesn't match MongoDB user
 - User not registered yet
 
 **Solution**:
+
 1. Ensure `/auth/register` is called after signup
 2. Check Firebase UID is correctly stored in MongoDB
 
@@ -1035,10 +1098,11 @@ CLIENT_URL=http://localhost:4173  # Match frontend URL
 **Issue**: Users getting "Too many requests" errors
 
 **Solution**: Adjust rate limiter in `middleware/rateLimiter.ts`:
+
 ```typescript
 rateLimit({
-  windowMs: 15 * 60 * 1000,  // Increase window
-  max: 100                     // Increase limit
+	windowMs: 15 * 60 * 1000, // Increase window
+	max: 100 // Increase limit
 })
 ```
 
@@ -1058,12 +1122,13 @@ curl http://localhost:5000/api/health
 ```
 
 Expected response:
+
 ```json
 {
-  "status": "API is healthy",
-  "database": "connected",
-  "timestamp": "2024-01-01T00:00:00.000Z",
-  "version": "1.0.0"
+	"status": "API is healthy",
+	"database": "connected",
+	"timestamp": "2024-01-01T00:00:00.000Z",
+	"version": "1.0.0"
 }
 ```
 
@@ -1088,6 +1153,7 @@ Logs are output to console and captured by Docker/PM2:
 - **Production**: JSON format for log aggregation
 
 Access logs on deployment platforms:
+
 - **Render**: Logs tab in dashboard
 - **Heroku**: `heroku logs -t`
 - **PM2**: `pm2 logs connected-server`
@@ -1117,4 +1183,4 @@ For contribution guidelines, please see the main ConnecTED repository.
 ---
 
 **Last Updated**: 2024
-**Version**: 1.0.0" 
+**Version**: 1.0.0"
