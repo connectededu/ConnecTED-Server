@@ -1,4 +1,4 @@
-import admin from '../config/firebase'
+import admin, { getAuth } from '../config/firebase'
 import User from '../models/User'
 
 const usersToCreate = [
@@ -55,9 +55,9 @@ export const seedDefaultLogins = async () => {
 			// 1. Handle Firebase Auth User
 			let fbUser;
 			try {
-				fbUser = await admin.auth().getUserByEmail(u.email)
+				fbUser = await getAuth().getUserByEmail(u.email)
 				console.log(`User already exists in Firebase. Deleting to recreate fresh...`)
-				await admin.auth().deleteUser(fbUser.uid)
+				await getAuth().deleteUser(fbUser.uid)
 				console.log(`Deleted user from Firebase.`)
 			} catch (err: any) {
 				if (err.code !== 'auth/user-not-found') {
@@ -66,7 +66,7 @@ export const seedDefaultLogins = async () => {
 			}
 
 			console.log(`Creating user in Firebase...`)
-			fbUser = await admin.auth().createUser({
+			fbUser = await getAuth().createUser({
 				uid: u.uid,
 				email: u.email,
 				password: u.password,
