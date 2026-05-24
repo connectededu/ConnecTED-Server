@@ -9,7 +9,7 @@
 		"build": "tsc",
 		"setup-admin": "ts-node src/scripts/setup-admin.ts",
 		"cleanup-users": "ts-node src/scripts/cleanup-users.ts",
-		"create-logins": "ts-node scripts/create-default-logins.ts",
+		"create-logins": "ts-node src/scripts/create-default-logins.ts",
 		"seed-data": "ts-node scripts/seed-production-data.ts"
 	},
 	"keywords": [],

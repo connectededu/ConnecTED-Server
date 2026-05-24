@@ -245,10 +245,6 @@ FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@project-id.iam.gserviceaccount.com
 # CLOUDINARY (Optional - for file uploads)
 CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
 
-# PAYSTACK (Optional - for payment processing)
-PAYSTACK_SECRET_KEY=sk_test_xxxxx
-PAYSTACK_PUBLIC_KEY=pk_test_xxxxx
-
 # EMAIL (Gmail with app password)
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASSWORD=your-app-password

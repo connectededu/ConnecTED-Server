@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import apiRoutes from './routes'
+import { seedDefaultLogins } from './scripts/create-default-logins'
 
 const app = express()
 
@@ -39,5 +40,16 @@ app.use(
 
 // Routes
 app.use('/api', apiRoutes)
+
+// Temporary endpoint to seed default users in free mode without shell
+app.get('/api/seed-default-logins', async (req, res) => {
+	try {
+		await seedDefaultLogins();
+		res.status(200).json({ message: 'Default logins seeded successfully!' });
+	} catch (error: any) {
+		console.error('Error seeding data via API:', error);
+		res.status(500).json({ error: 'Failed to seed data', details: error?.message || String(error) });
+	}
+});
 
 export default app
