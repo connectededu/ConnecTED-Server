@@ -79,7 +79,7 @@ export const getMessages = async (req: Request, res: Response) => {
 
     const userId = (user as any)._id.toString();
 
-    // Fix B3: fetch thread first, verify participant membership
+    // Fetch thread first, verify participant membership
     const thread = await MessageThread.findOne({ $or: [{ _id: threadId }, { id: threadId }] });
     if (!thread) { res.status(404).json({ error: 'Thread not found' }); return; }
 
@@ -89,12 +89,14 @@ export const getMessages = async (req: Request, res: Response) => {
       return;
     }
 
+    // Query messages using the thread's UUID id, not MongoDB _id
     const messages = await Message.find({ threadId: thread.id })
       .sort({ timestamp: 1 })
       .skip(Number(offset))
       .limit(Number(limit));
     res.json(messages);
   } catch (error) {
+    console.error('Get messages error:', error);
     res.status(500).json({ error: 'Failed to fetch messages' });
   }
 };
@@ -124,7 +126,7 @@ export const sendMessage = async (req: Request, res: Response) => {
 
     const message = new Message({
       id: uuidv4(),
-      threadId: thread.id || threadId,
+      threadId: thread.id,
       senderId,
       senderRole: user.role,
       content,
@@ -134,18 +136,14 @@ export const sendMessage = async (req: Request, res: Response) => {
     });
     await message.save();
 
-    // Fix B1: update thread's lastMessage; unreadCount is now per-participant via readBy.
-    // We remove the sender from readBy (they just sent, so they have "read" it),
-    // and all other participants effectively have an unread message.
+    // Update thread's lastMessage and unreadCount
     await MessageThread.findOneAndUpdate(
-      { $or: [{ _id: threadId }, { id: threadId }] },
+      { _id: thread._id },
       {
         $set: {
           lastMessage: { content, senderId, timestamp: message.timestamp },
-          // Keep a rough global unread for notification badges (still useful for quick display)
           unreadCount: thread.participants.filter((p: any) => p.id !== senderId).length,
         },
-        // Mark sender as having read up to now; remove other participants' read entries so they show unread
         $pull: { readBy: { userId: { $ne: senderId } } },
       }
     );
@@ -154,8 +152,21 @@ export const sendMessage = async (req: Request, res: Response) => {
     const io = getIO();
     for (const participant of thread.participants) {
       if (participant.id !== senderId) {
-        // Real-time message event
-        io?.to(`user:${participant.id}`).emit('receive_message', { threadId: thread.id || threadId, message });
+        // Real-time message event with full message data
+        io?.to(`user:${participant.id}`).emit('receive_message', {
+          threadId: thread.id,
+          message: {
+            id: message.id,
+            _id: (message as any)._id,
+            threadId: message.threadId,
+            senderId: message.senderId,
+            senderRole: message.senderRole,
+            content: message.content,
+            timestamp: message.timestamp,
+            isRead: message.isRead,
+            attachments: message.attachments
+          }
+        });
 
         // Persistent notification
         const notif = new Notification({
@@ -174,6 +185,7 @@ export const sendMessage = async (req: Request, res: Response) => {
 
     res.status(201).json(message);
   } catch (error) {
+    console.error('Send message error:', error);
     res.status(500).json({ error: 'Failed to send message' });
   }
 };
@@ -200,22 +212,22 @@ export const markThreadRead = async (req: Request, res: Response) => {
       return;
     }
 
-    // Mark messages as read (optimistic — marks all, server-side read is tracked per-user in readBy)
-    await Message.updateMany({ threadId, isRead: false, senderId: { $ne: userId } }, { $set: { isRead: true } });
+    // Mark messages as read using the thread's UUID id
+    await Message.updateMany({ threadId: thread.id, isRead: false, senderId: { $ne: userId } }, { $set: { isRead: true } });
 
     // Update readBy for the current user
     await MessageThread.findOneAndUpdate(
-      { $or: [{ _id: threadId }, { id: threadId }] },
+      { _id: thread._id },
       {
         $pull: { readBy: { userId } },
         $push: { readBy: { userId, readAt: new Date() } },
-        // Decrement unreadCount (floor at 0)
         $set: { unreadCount: 0 },
       }
     );
 
     res.json({ message: 'Thread marked as read' });
   } catch (error) {
+    console.error('Mark thread read error:', error);
     res.status(500).json({ error: 'Failed to mark thread as read' });
   }
 };
