@@ -7,6 +7,7 @@ import Attendance from '../models/Attendance';
 import Homework from '../models/Homework';
 import Announcement from '../models/Announcement';
 import Event from '../models/Event';
+import AuditLog from '../models/AuditLog';
 
 const getGrowthPercentage = async (model: any, filter: any = {}): Promise<string> => {
   const now = new Date();
@@ -96,6 +97,33 @@ export const getDashboardAnalytics = async (req: Request, res: Response): Promis
         { name: 'Fri', present: Math.min(100, safeRate + 2), absent: Math.max(0, 100 - safeRate - 2) },
       ];
 
+      // Fetch recent activity from AuditLog (last 5 entries)
+      const recentLogs = await AuditLog.find()
+        .sort({ timestamp: -1 })
+        .limit(5)
+        .lean();
+
+      const recentActivity = recentLogs.map((log: any) => {
+        const now = new Date();
+        const logTime = new Date(log.timestamp);
+        const diffMs = now.getTime() - logTime.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        let timeAgo: string;
+        if (diffMins < 1) timeAgo = 'just now';
+        else if (diffMins < 60) timeAgo = `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+        else if (diffHours < 24) timeAgo = `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+        else timeAgo = `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+
+        return {
+          type: log.targetType || 'system',
+          message: log.details || log.action,
+          time: timeAgo,
+        };
+      });
+
       res.json({
         totalStudents,
         totalParents,
@@ -107,16 +135,9 @@ export const getDashboardAnalytics = async (req: Request, res: Response): Promis
         studentGrowth,
         parentGrowth,
         teacherGrowth,
-        gradeData: gradeData.length > 0 ? gradeData : [
-          { name: 'Math', avg: 85 },
-          { name: 'Sci', avg: 82 },
-          { name: 'Eng', avg: 88 },
-        ],
+        gradeData,
         attendanceData,
-        recentActivity: [
-          { type: 'grade', message: 'Grades published for Class 1-A', time: '2 hours ago' },
-          { type: 'attendance', message: 'Attendance marked for Class 1-A', time: '4 hours ago' }
-        ]
+        recentActivity,
       });
       return;
     }
