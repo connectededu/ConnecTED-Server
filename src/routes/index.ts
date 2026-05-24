@@ -16,6 +16,7 @@ import analyticsRoutes from './analytics';
 import testRoutes from './test';
 import programsRoutes from './programs';
 import subjectGroupsRoutes from './subjectGroups';
+import uploadRoutes from './upload';
 
 const router = express.Router();
 
@@ -42,14 +43,16 @@ router.use(auditMiddleware);
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/students', studentRoutes);
-router.use('/classes', classRoutes);
+router.use('/analytics', analyticsRoutes);
 router.use('/programs', programsRoutes);
 router.use('/subject-groups', subjectGroupsRoutes);
+router.use('/upload', uploadRoutes);
 router.use('/announcements', announcementsRoutes);
 router.use('/events', eventsRoutes);
 router.use('/attendance', attendanceRoutes);
 router.use('/grades', gradesRoutes);
 router.use('/homework', homeworkRoutes);
+router.use('/classes', classRoutes);
 router.use('/messages', messagesRoutes);
 router.use('/notifications', notificationsRoutes);
 router.use('/audit', auditRoutes);

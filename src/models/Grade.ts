@@ -10,6 +10,7 @@ export interface IGrade extends Document {
   maxScore: number;
   teacherId: string;
   publishedAt?: Date;
+  comments?: string;
 }
 
 const GradeSchema: Schema = new Schema(
@@ -23,6 +24,7 @@ const GradeSchema: Schema = new Schema(
     maxScore: { type: Number, required: true },
     teacherId: { type: String, required: true },
     publishedAt: { type: Date },
+    comments: { type: String },
   },
   { timestamps: true }
 );

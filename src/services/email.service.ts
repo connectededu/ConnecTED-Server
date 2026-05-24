@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import * as SibApiV3Sdk from '@getbrevo/brevo';
 
 // Email templates
 const templates = {
@@ -108,17 +108,13 @@ const templates = {
   }),
 };
 
-// Create transporter (configure based on your email provider)
-const createTransporter = () => {
-  // Using Gmail - for production, consider SendGrid or Resend
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD, // Use app password for Gmail
-    },
-  });
-};
+// Configure API key authorization: api-key
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+if (process.env.BREVO_API_KEY) {
+  apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+} else {
+  console.warn("BREVO_API_KEY is not set in environment variables.");
+}
 
 export interface EmailOptions {
   to: string | string[];
@@ -131,7 +127,6 @@ export interface EmailOptions {
  */
 export const sendEmail = async (options: EmailOptions): Promise<boolean> => {
   try {
-    const transporter = createTransporter();
     const templateFn = templates[options.template];
     
     if (!templateFn) {
@@ -141,17 +136,19 @@ export const sendEmail = async (options: EmailOptions): Promise<boolean> => {
 
     const { subject, html } = (templateFn as any)(...options.templateData);
 
-    await transporter.sendMail({
-      from: `"Connected" <${process.env.EMAIL_USER}>`,
-      to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
-      subject,
-      html,
-    });
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    sendSmtpEmail.subject = subject;
+    sendSmtpEmail.htmlContent = html;
+    sendSmtpEmail.sender = { name: "ConnecTED Support", email: process.env.BREVO_SENDER_EMAIL || "support@connected.com" };
+    
+    const toArray = Array.isArray(options.to) ? options.to : [options.to];
+    sendSmtpEmail.to = toArray.map(email => ({ email }));
 
-    console.log(`Email sent: ${subject} to ${options.to}`);
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log(`Email sent via Brevo: ${subject} to ${options.to}`);
     return true;
   } catch (error) {
-    console.error('Failed to send email:', error);
+    console.error('Failed to send email via Brevo:', error);
     return false;
   }
 };
