@@ -25,6 +25,7 @@
 		"@types/nodemailer": "^6.4.15",
 		"@types/uuid": "^10.0.0",
 		"@types/ws": "^8.5.11",
+		"axios": "^1.7.7",
 		"cloudinary": "^1.41.3",
 		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.5",
