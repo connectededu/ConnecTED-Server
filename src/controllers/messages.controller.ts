@@ -80,7 +80,7 @@ export const getMessages = async (req: Request, res: Response) => {
     const userId = (user as any)._id.toString();
 
     // Fetch thread first, verify participant membership
-    const thread = await MessageThread.findOne({ $or: [{ _id: threadId }, { id: threadId }] });
+    const thread = await MessageThread.findOne({ id: threadId });
     if (!thread) { res.status(404).json({ error: 'Thread not found' }); return; }
 
     const isMember = thread.participants.some((p: any) => p.id === userId);
@@ -112,7 +112,7 @@ export const sendMessage = async (req: Request, res: Response) => {
     if (!user) { res.status(401).json({ error: 'Authentication required' }); return; }
     if (!content) { res.status(400).json({ error: 'content is required' }); return; }
 
-    const thread = await MessageThread.findOne({ $or: [{ _id: threadId }, { id: threadId }] });
+    const thread = await MessageThread.findOne({ id: threadId });
     if (!thread) { res.status(404).json({ error: 'Thread not found' }); return; }
 
     const senderId = (user as any)._id.toString();
@@ -202,7 +202,7 @@ export const markThreadRead = async (req: Request, res: Response) => {
 
     const userId = (user as any)._id.toString();
 
-    const thread = await MessageThread.findOne({ $or: [{ _id: threadId }, { id: threadId }] });
+    const thread = await MessageThread.findOne({ id: threadId });
     if (!thread) { res.status(404).json({ error: 'Thread not found' }); return; }
 
     // Verify participant
