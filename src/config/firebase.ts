@@ -41,6 +41,12 @@ if (!admin.apps.length) {
   }
 }
 
+// Lazy getter functions — safe to call from any context including standalone scripts.
+export const getAuth = () => admin.auth();
+export const getFirestore = () => admin.firestore();
+
+// Instance exports — Firebase is initialized above before these lines run,
+// so admin.auth() / admin.firestore() are safe here.
 export const auth = admin.auth();
 export const firestore = admin.firestore();
 

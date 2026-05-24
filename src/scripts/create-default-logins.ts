@@ -1,15 +1,5 @@
-import admin from 'firebase-admin'
-import mongoose from 'mongoose'
-import dotenv from 'dotenv'
-import dns from 'node:dns/promises'
+import admin from '../config/firebase'
 import User from '../models/User'
-
-// Fix for potential DNS resolution issues with MongoDB Atlas on some environments
-dns.setServers(['1.1.1.1', '1.0.0.1'])
-
-dotenv.config()
-
-console.log('--- DEFAULT LOGINS CREATION STARTING ---')
 
 const usersToCreate = [
 	{
@@ -117,26 +107,18 @@ export const seedDefaultLogins = async () => {
 }
 
 async function run() {
+	// Only used when script is run directly from the CLI — import mongoose here
+	const mongoose = await import('mongoose')
+	const dotenv = await import('dotenv')
+	dotenv.default.config()
 	try {
 		console.log('Connecting to MongoDB...')
-		await mongoose.connect(process.env.MONGO_URI!)
+		await mongoose.default.connect(process.env.MONGO_URI!)
 		console.log('Connected to MongoDB.')
-
-		console.log('Initializing Firebase Admin SDK...')
-		if (!admin.apps.length) {
-			admin.initializeApp({
-				credential: admin.credential.cert({
-					projectId: process.env.FIREBASE_PROJECT_ID,
-					privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-					clientEmail: process.env.FIREBASE_CLIENT_EMAIL
-				} as admin.ServiceAccount)
-			})
-		}
-		console.log('Firebase Admin SDK initialized.')
-
+		console.log('Firebase Admin SDK already initialized via config/firebase.')
 		await seedDefaultLogins();
 	} finally {
-		await mongoose.disconnect()
+		await mongoose.default.disconnect()
 		console.log('Disconnected from MongoDB.')
 		process.exit()
 	}
