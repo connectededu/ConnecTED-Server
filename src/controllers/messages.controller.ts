@@ -89,7 +89,7 @@ export const getMessages = async (req: Request, res: Response) => {
       return;
     }
 
-    const messages = await Message.find({ threadId })
+    const messages = await Message.find({ threadId: thread.id })
       .sort({ timestamp: 1 })
       .skip(Number(offset))
       .limit(Number(limit));

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import AuditLog from '../models/AuditLog';
 import User from '../models/User';
 
@@ -29,9 +30,29 @@ export const getAuditLogs = async (req: Request, res: Response) => {
 
     // Enrich logs with user info for human-readable display
     const adminIds = [...new Set(logs.map(l => l.adminId).filter(Boolean))];
-    const users = await User.find({ _id: { $in: adminIds } }).select('name email role').lean();
+    
+    const validObjectIds = adminIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+    const otherIds = adminIds.filter(id => !mongoose.Types.ObjectId.isValid(id));
+
+    const userQueries: any[] = [];
+    if (validObjectIds.length > 0) {
+      userQueries.push({ _id: { $in: validObjectIds } });
+    }
+    if (otherIds.length > 0) {
+      userQueries.push({ firebaseUid: { $in: otherIds } });
+    }
+
+    const users = userQueries.length > 0 
+      ? await User.find({ $or: userQueries }).select('name email role firebaseUid').lean()
+      : [];
+
     const userMap: Record<string, any> = {};
-    users.forEach(u => { userMap[(u as any)._id.toString()] = u; });
+    users.forEach(u => { 
+      userMap[(u as any)._id.toString()] = u; 
+      if ((u as any).firebaseUid) {
+        userMap[(u as any).firebaseUid] = u;
+      }
+    });
 
     const enrichedLogs = logs.map(log => {
       const logObj = log.toObject() as any;
@@ -46,6 +67,7 @@ export const getAuditLogs = async (req: Request, res: Response) => {
 
     res.json({ logs: enrichedLogs, total });
   } catch (error) {
+    console.error('getAuditLogs Error:', error);
     res.status(500).json({ error: 'Failed to fetch audit logs' });
   }
 };
