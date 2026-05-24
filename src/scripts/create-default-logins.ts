@@ -108,15 +108,22 @@ export const seedDefaultLogins = async () => {
 
 async function run() {
 	// Only used when script is run directly from the CLI — import mongoose here
+	const dns = await import('node:dns/promises')
 	const mongoose = await import('mongoose')
 	const dotenv = await import('dotenv')
 	dotenv.default.config()
+
+	// Fix for MongoDB Atlas SRV DNS resolution issues on some environments
+	dns.default.setServers(['1.1.1.1', '1.0.0.1'])
+
 	try {
 		console.log('Connecting to MongoDB...')
 		await mongoose.default.connect(process.env.MONGO_URI!)
 		console.log('Connected to MongoDB.')
 		console.log('Firebase Admin SDK already initialized via config/firebase.')
 		await seedDefaultLogins();
+	} catch (err) {
+		console.error('FATAL ERROR:', err)
 	} finally {
 		await mongoose.default.disconnect()
 		console.log('Disconnected from MongoDB.')
