@@ -1,4 +1,4 @@
-import * as SibApiV3Sdk from '@getbrevo/brevo';
+import axios from 'axios';
 
 // Email templates
 const templates = {
@@ -10,13 +10,10 @@ const templates = {
         <p>Hi ${name},</p>
         <p>Great news! Your account has been approved by an administrator.</p>
         <p>You can now log in and access all features of the Connected platform.</p>
-        <a href="${process.env.LOCALHOST_URL}" 
+        <a href="${process.env.CLIENT_URL || 'http://localhost:4173'}" 
            style="display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 16px 0;">
           Log In Now
         </a>
-        <p style="color: #666; font-size: 14px;">
-          If you have any questions, please contact your school administrator.
-        </p>
       </div>
     `,
   }),
@@ -31,10 +28,6 @@ const templates = {
           <p><strong>Name:</strong> ${userName}</p>
           <p><strong>Role:</strong> ${userRole}</p>
         </div>
-        <a href="${process.env.SERVERHOST_URL}/admin/users" 
-           style="display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">
-          Review Registration
-        </a>
       </div>
     `,
   }),
@@ -49,10 +42,6 @@ const templates = {
           <p><strong>Subject:</strong> ${subject}</p>
           <p><strong>Score:</strong> ${score}</p>
         </div>
-        <a href="${process.env.LOCALHOST_URL}/parent/grades" 
-           style="display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">
-          View Grades
-        </a>
       </div>
     `,
   }),
@@ -67,10 +56,6 @@ const templates = {
           <p><strong>Date:</strong> ${date}</p>
           <p><strong>Status:</strong> ${status}</p>
         </div>
-        <a href="${process.env.LOCALHOST_URL}/parent/attendance" 
-           style="display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">
-          View Attendance
-        </a>
       </div>
     `,
   }),
@@ -81,10 +66,6 @@ const templates = {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #4F46E5;">${title}</h1>
         <p>${preview}</p>
-        <a href="${process.env.LOCALHOST_URL}/announcements" 
-           style="display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 16px 0;">
-          View Full Announcement
-        </a>
       </div>
     `,
   }),
@@ -99,22 +80,10 @@ const templates = {
           <p><strong>Date:</strong> ${date}</p>
           <p><strong>Location:</strong> ${location}</p>
         </div>
-        <a href="${process.env.LOCALHOST_URL}/events" 
-           style="display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">
-          View Event & RSVP
-        </a>
       </div>
     `,
   }),
 };
-
-// Configure API key authorization: api-key
-const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-if (process.env.BREVO_API_KEY) {
-  apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
-} else {
-  console.warn("BREVO_API_KEY is not set in environment variables.");
-}
 
 export interface EmailOptions {
   to: string | string[];
@@ -136,15 +105,25 @@ export const sendEmail = async (options: EmailOptions): Promise<boolean> => {
 
     const { subject, html } = (templateFn as any)(...options.templateData);
 
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-    sendSmtpEmail.subject = subject;
-    sendSmtpEmail.htmlContent = html;
-    sendSmtpEmail.sender = { name: "ConnecTED Support", email: process.env.BREVO_SENDER_EMAIL || "support@connected.com" };
-    
     const toArray = Array.isArray(options.to) ? options.to : [options.to];
-    sendSmtpEmail.to = toArray.map(email => ({ email }));
+    
+    if (!process.env.BREVO_API_KEY) {
+      console.warn("BREVO_API_KEY is not set. Email not sent.");
+      return false;
+    }
 
-    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    await axios.post('https://api.brevo.com/v3/smtp/email', {
+      sender: { name: "ConnecTED Support", email: process.env.BREVO_SENDER_EMAIL || "support@connected.com" },
+      to: toArray.map(email => ({ email })),
+      subject,
+      htmlContent: html
+    }, {
+      headers: {
+        'api-key': process.env.BREVO_API_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+
     console.log(`Email sent via Brevo: ${subject} to ${options.to}`);
     return true;
   } catch (error) {

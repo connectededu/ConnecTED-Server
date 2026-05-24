@@ -22,14 +22,15 @@ export const uploadParser = multer({ storage });
 
 export const uploadFile = (req: Request, res: Response) => {
   try {
-    if (!req.file) {
+    const file = (req as any).file;
+    if (!file) {
       res.status(400).json({ error: 'No file uploaded' });
       return;
     }
     // multer-storage-cloudinary adds path/filename to req.file
     res.json({
-      url: req.file.path,
-      filename: req.file.filename,
+      url: file.path,
+      filename: file.filename,
     });
   } catch (error) {
     console.error('File upload error:', error);
