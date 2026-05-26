@@ -299,10 +299,10 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
             linkedStudentIds.push(existingStudent._id.toString());
           } else {
             const newStudent = new Student({
-              id: admissionNumber || `STU-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+              id: admissionNumber || `STU-${Date.now()}-${Math.floor(Math.random() * 100000)}`,
               name: sName,
               dateOfBirth,
-              admissionNumber: admissionNumber || `STU-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+              admissionNumber: admissionNumber || `STU-${Date.now()}-${Math.floor(Math.random() * 100000)}`,
               classId: classId || 'awaiting',
               parentIds: [newUser._id.toString()]
             });

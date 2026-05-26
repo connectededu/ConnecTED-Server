@@ -8,6 +8,7 @@ export interface IAnnouncement extends Document {
   authorRole: string;
   targetAudience: 'all' | 'parents' | 'teachers' | 'class';
   targetClassIds?: string[];
+  targetStudentIds?: string[];
   attachments: any[];
   publishedAt: Date;
   image?: string;
@@ -26,6 +27,7 @@ const AnnouncementSchema: Schema = new Schema(
       required: true,
     },
     targetClassIds: { type: [String], default: [] },
+    targetStudentIds: { type: [String], default: [] },
     attachments: [{ type: Schema.Types.Mixed }],
     publishedAt: { type: Date, default: Date.now },
     image: { type: String },
@@ -36,6 +38,7 @@ const AnnouncementSchema: Schema = new Schema(
 
 AnnouncementSchema.index({ targetAudience: 1 });
 AnnouncementSchema.index({ targetClassIds: 1 });
+AnnouncementSchema.index({ targetStudentIds: 1 });
 
 export default mongoose.model<IAnnouncement>('Announcement', AnnouncementSchema);
 

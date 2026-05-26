@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Student from '../models/Student';
 import Class from '../models/Class';
 import User from '../models/User';
@@ -87,21 +88,73 @@ export const getDashboardAnalytics = async (req: Request, res: Response): Promis
         avg: Math.round(subjectScores[subject].total / subjectScores[subject].count)
       }));
 
-      // Generate daily attendance rate breakdown for chart
-      const safeRate = attendanceRate ?? 0;
-      const attendanceData = [
-        { name: 'Mon', present: safeRate, absent: Math.max(0, 100 - safeRate) },
-        { name: 'Tue', present: Math.max(0, safeRate - 2), absent: Math.min(100, 100 - safeRate + 2) },
-        { name: 'Wed', present: Math.min(100, safeRate + 1), absent: Math.max(0, 100 - safeRate - 1) },
-        { name: 'Thu', present: Math.max(0, safeRate - 3), absent: Math.min(100, 100 - safeRate + 3) },
-        { name: 'Fri', present: Math.min(100, safeRate + 2), absent: Math.max(0, 100 - safeRate - 2) },
-      ];
+      // Generate real daily attendance rate breakdown for chart
+      const now = new Date();
+      const currentDay = now.getDay();
+      const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+      const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
+      monday.setHours(0,0,0,0);
+      const endOfWeek = new Date(monday);
+      endOfWeek.setDate(monday.getDate() + 6);
+      endOfWeek.setHours(23,59,59,999);
+
+      const weekAttendance = await Attendance.find({
+        date: { $gte: monday, $lte: endOfWeek }
+      });
+
+      const dailyStats: Record<number, { total: number, present: number }> = {
+        1: { total: 0, present: 0 },
+        2: { total: 0, present: 0 },
+        3: { total: 0, present: 0 },
+        4: { total: 0, present: 0 },
+        5: { total: 0, present: 0 },
+      };
+
+      weekAttendance.forEach(a => {
+        const day = new Date(a.date).getDay();
+        if (day >= 1 && day <= 5) {
+          dailyStats[day].total += 1;
+          if (a.status === 'present' || a.status === 'late') {
+            dailyStats[day].present += 1;
+          }
+        }
+      });
+
+      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+      const attendanceData = [1, 2, 3, 4, 5].map((dayNum, idx) => {
+        const stats = dailyStats[dayNum];
+        const presentPct = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
+        return {
+          name: dayNames[idx],
+          present: presentPct,
+          absent: stats.total > 0 ? 100 - presentPct : 0
+        };
+      });
 
       // Fetch recent activity from AuditLog (last 5 entries)
       const recentLogs = await AuditLog.find()
         .sort({ timestamp: -1 })
         .limit(5)
         .lean();
+
+      // Collect adminIds
+      const adminIds = [...new Set(recentLogs.map(l => l.adminId).filter(Boolean))];
+      const validAdminIds = adminIds.filter(id => id !== 'system' && id !== 'anonymous');
+      
+      const admins = validAdminIds.length > 0 
+        ? await User.find({ 
+            $or: [
+              { _id: { $in: validAdminIds.filter(id => mongoose.Types.ObjectId.isValid(id)) } },
+              { firebaseUid: { $in: validAdminIds } }
+            ]
+          }).select('name _id firebaseUid').lean()
+        : [];
+
+      const adminMap: Record<string, string> = {};
+      admins.forEach(a => {
+        adminMap[(a as any)._id.toString()] = a.name;
+        if ((a as any).firebaseUid) adminMap[(a as any).firebaseUid] = a.name;
+      });
 
       const recentActivity = recentLogs.map((log: any) => {
         const now = new Date();
@@ -117,9 +170,11 @@ export const getDashboardAnalytics = async (req: Request, res: Response): Promis
         else if (diffHours < 24) timeAgo = `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
         else timeAgo = `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
 
+        const adminName = adminMap[log.adminId] || 'System';
+
         return {
           type: log.targetType || 'system',
-          message: log.details || log.action,
+          message: `${adminName} ${log.details?.toLowerCase() || log.action}`,
           time: timeAgo,
         };
       });
@@ -207,6 +262,7 @@ export const getDashboardAnalytics = async (req: Request, res: Response): Promis
             id: child.id,
             name: child.name,
             avatar: child.avatar,
+            classId: child.classId,
             admissionNumber: child.admissionNumber,
             attendanceRate: childAttendanceRate,
             gradeAverage: childGradeAverage,

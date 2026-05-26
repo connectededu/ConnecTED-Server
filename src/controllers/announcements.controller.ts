@@ -89,10 +89,10 @@ export const createAnnouncement = async (req: Request, res: Response) => {
       io.emit('new_announcement', announcement);
     }
     
-    await AuditLog.create({
-      id: uuidv4(),
-      adminId: (user as any)._id.toString(),
-      action: 'CREATE_ANNOUNCEMENT',
+    const { createAuditLog } = await import('../services/audit.service');
+    await createAuditLog({
+      userId: (user as any)._id.toString(),
+      action: 'ANNOUNCEMENT_CREATED',
       targetType: 'announcement',
       targetId: announcement.id,
       details: `Created announcement "${title}"`,
@@ -122,10 +122,10 @@ export const updateAnnouncement = async (req: Request, res: Response) => {
     }
     const user = req.user;
     if (user) {
-      await AuditLog.create({
-        id: uuidv4(),
-        adminId: (user as any)._id.toString(),
-        action: 'UPDATE_ANNOUNCEMENT',
+      const { createAuditLog } = await import('../services/audit.service');
+      await createAuditLog({
+        userId: (user as any)._id.toString(),
+        action: 'ANNOUNCEMENT_UPDATED',
         targetType: 'announcement',
         targetId: announcement.id || announcement._id.toString(),
         details: `Updated announcement "${announcement.title}"`,
@@ -150,10 +150,10 @@ export const deleteAnnouncement = async (req: Request, res: Response) => {
     }
     const user = req.user;
     if (user) {
-      await AuditLog.create({
-        id: uuidv4(),
-        adminId: (user as any)._id.toString(),
-        action: 'DELETE_ANNOUNCEMENT',
+      const { createAuditLog } = await import('../services/audit.service');
+      await createAuditLog({
+        userId: (user as any)._id.toString(),
+        action: 'ANNOUNCEMENT_DELETED',
         targetType: 'announcement',
         targetId: id,
         details: `Deleted announcement "${announcement.title}"`,
@@ -182,10 +182,10 @@ export const archiveAnnouncement = async (req: Request, res: Response) => {
     }
     const user = req.user;
     if (user) {
-      await AuditLog.create({
-        id: uuidv4(),
-        adminId: (user as any)._id.toString(),
-        action: 'ARCHIVE_ANNOUNCEMENT',
+      const { createAuditLog } = await import('../services/audit.service');
+      await createAuditLog({
+        userId: (user as any)._id.toString(),
+        action: 'ANNOUNCEMENT_ARCHIVED',
         targetType: 'announcement',
         targetId: announcement.id || announcement._id.toString(),
         details: `Archived announcement "${announcement.title}"`,
@@ -214,10 +214,10 @@ export const restoreAnnouncement = async (req: Request, res: Response) => {
     }
     const user = req.user;
     if (user) {
-      await AuditLog.create({
-        id: uuidv4(),
-        adminId: (user as any)._id.toString(),
-        action: 'UPDATE_ANNOUNCEMENT',
+      const { createAuditLog } = await import('../services/audit.service');
+      await createAuditLog({
+        userId: (user as any)._id.toString(),
+        action: 'ANNOUNCEMENT_RESTORED',
         targetType: 'announcement',
         targetId: announcement.id || announcement._id.toString(),
         details: `Restored announcement "${announcement.title}"`,
