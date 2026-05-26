@@ -262,6 +262,10 @@ export const approveUser = async (req: Request, res: Response): Promise<void> =>
       userAgent: req.get('user-agent'),
     });
 
+    // Send approval email
+    const { sendApprovalEmail } = await import('../services/email.service');
+    await sendApprovalEmail(user.email, user.name);
+
     // Notify the user
     await createNotification({
       userId: user._id.toString(),

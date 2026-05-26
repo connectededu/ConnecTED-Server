@@ -1169,11 +1169,5 @@ ISC
 
 ---
 
-## 👥 Contributing
-
-For contribution guidelines, please see the main ConnecTED repository.
-
----
-
-**Last Updated**: 2024
+**Last Updated**: 2026 May
 **Version**: 1.0.0"
