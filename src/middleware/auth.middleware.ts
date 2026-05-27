@@ -43,8 +43,24 @@ export const verifyToken = async (
 
   try {
     let decodedToken;
+    let authHeaderToken = '';
+
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      authHeaderToken = authHeader.split('Bearer ')[1];
+    }
+
     if (isSessionCookie) {
-      decodedToken = await auth.verifySessionCookie(token, true);
+      try {
+        decodedToken = await auth.verifySessionCookie(token, true);
+      } catch (cookieError) {
+        // If cookie fails, fallback to Bearer token if available
+        if (authHeaderToken) {
+          decodedToken = await auth.verifyIdToken(authHeaderToken);
+        } else {
+          throw cookieError;
+        }
+      }
     } else {
       decodedToken = await auth.verifyIdToken(token);
     }
