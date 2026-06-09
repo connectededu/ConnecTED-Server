@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import Homework from '../models/Homework';
-import Notification from '../models/Notification';
 import Student from '../models/Student';
+import { createNotification } from '../services/notification.service';
 import { getIO } from '../config/socket';
 
 const getHomeworkQuery = (id: string) => {
@@ -74,20 +74,15 @@ export const createHomework = async (req: Request, res: Response) => {
 
     // Notify parents of students in this class
     const students = await Student.find({ classId });
-    const io = getIO();
     for (const student of students) {
       for (const parentId of (student.parentIds || [])) {
-        const notif = new Notification({
-          id: uuidv4(),
+        await createNotification({
           userId: parentId,
           type: 'homework',
           title: `New homework: ${title}`,
           message: `${student.name} has new ${subject} homework due ${dueDate}.`,
-          isRead: false,
-          link: `/parent/children/${student.id}`,
+          link: `/parent/children/${student.id}?homework=${homework.id}`
         });
-        await notif.save();
-        io?.to(`user:${parentId}`).emit('notification', notif);
       }
     }
 

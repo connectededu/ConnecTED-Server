@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import Announcement from '../models/Announcement';
 import AuditLog from '../models/AuditLog';
+import Student from '../models/Student';
+import { notifyByRole, createBulkNotifications } from '../services/notification.service';
 import { getIO } from '../config/socket';
 
 const getAnnouncementQuery = (id: string) => {
@@ -87,6 +89,28 @@ export const createAnnouncement = async (req: Request, res: Response) => {
     const io = getIO();
     if (io) {
       io.emit('new_announcement', announcement);
+    }
+    
+    // Create notifications based on target audience
+    const baseNotification = {
+      type: 'announcement' as const,
+      title: `New Announcement: ${title}`,
+      message: content.length > 50 ? content.substring(0, 47) + '...' : content
+    };
+
+    if (targetAudience === 'all') {
+      await notifyByRole('parent', { ...baseNotification, link: '/parent/announcements' });
+      await notifyByRole('teacher', { ...baseNotification, link: '/teacher/announcements' });
+    } else if (targetAudience === 'parents') {
+      await notifyByRole('parent', { ...baseNotification, link: '/parent/announcements' });
+    } else if (targetAudience === 'teachers') {
+      await notifyByRole('teacher', { ...baseNotification, link: '/teacher/announcements' });
+    } else if (targetAudience === 'class' && targetClassIds && targetClassIds.length > 0) {
+      const students = await Student.find({ classId: { $in: targetClassIds } });
+      const parentIds = [...new Set(students.flatMap(s => s.parentIds || []))];
+      if (parentIds.length > 0) {
+        await createBulkNotifications(parentIds, { ...baseNotification, link: '/parent/announcements' });
+      }
     }
     
     const { createAuditLog } = await import('../services/audit.service');

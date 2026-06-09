@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import Event from '../models/Event';
+import Student from '../models/Student';
+import { notifyByRole, createBulkNotifications } from '../services/notification.service';
 import { getIO } from '../config/socket';
 
 const getEventQuery = (id: string) => {
@@ -81,6 +83,28 @@ export const createEvent = async (req: Request, res: Response) => {
     const io = getIO();
     if (io) {
       io.emit('new_event', event);
+    }
+    
+    // Create notifications based on target audience
+    const baseNotification = {
+      type: 'event' as const,
+      title: `New Event: ${title}`,
+      message: `An event is scheduled for ${date} at ${time}.`
+    };
+
+    if (targetAudience === 'all') {
+      await notifyByRole('parent', { ...baseNotification, link: '/parent/events' });
+      await notifyByRole('teacher', { ...baseNotification, link: '/teacher/events' });
+    } else if (targetAudience === 'parents') {
+      await notifyByRole('parent', { ...baseNotification, link: '/parent/events' });
+    } else if (targetAudience === 'teachers') {
+      await notifyByRole('teacher', { ...baseNotification, link: '/teacher/events' });
+    } else if (targetAudience === 'class' && targetClassIds && targetClassIds.length > 0) {
+      const students = await Student.find({ classId: { $in: targetClassIds } });
+      const parentIds = [...new Set(students.flatMap(s => s.parentIds || []))];
+      if (parentIds.length > 0) {
+        await createBulkNotifications(parentIds, { ...baseNotification, link: '/parent/events' });
+      }
     }
     
     res.status(201).json(event);
